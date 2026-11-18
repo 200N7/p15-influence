@@ -258,92 +258,191 @@ void rank_influencers(const struct Graph *g) {
 }
 
 /*
- * Recursive DFS used by community detection.
+ * Detect k structural communities using
+ * Kruskal single-linkage clustering.
  *
- * For this analysis, edge direction is ignored.
- * Therefore both outgoing and incoming
- * relationships are considered.
+ * The directed influence graph is converted into an
+ * undirected relationship graph. For each unordered
+ * pair of users having at least one directed relation,
+ * the strongest available influence probability is used.
+ *
+ * distance = 1 - strongest_probability
+ *
+ * Therefore stronger relationships have smaller
+ * distances and are joined earlier by Kruskal.
  */
-static void community_dfs(
+void detect_communities(
     const struct Graph *g,
-    int user,
-    int visited[]
+    int k
 ) {
-    visited[user] = 1;
+    if (g == NULL || g->n <= 0) {
+        printf("community analysis requires a non-empty graph\n");
+        return;
+    }
 
-    printf("%s ", g->names[user]);
-
-    /*
-     * Follow outgoing relationships.
-     */
-    for (struct Edge *edge = g->head[user];
-         edge != NULL;
-         edge = edge->next) {
-
-        if (!visited[edge->to]) {
-            community_dfs(
-                g,
-                edge->to,
-                visited
-            );
-        }
+    if (k <= 0 || k > g->n) {
+        printf(
+            "invalid number of communities; choose 1-%d\n",
+            g->n
+        );
+        return;
     }
 
     /*
-     * Follow incoming relationships.
+     * strongest[u][v] stores the strongest relationship
+     * observed in either direction for unordered pair u,v.
      */
-    for (int i = 0; i < g->n; i++) {
-        for (struct Edge *edge = g->head[i];
+    double *strongest = calloc(
+        (size_t)g->n * (size_t)g->n,
+        sizeof(double)
+    );
+
+    if (strongest == NULL) {
+        printf("memory allocation failed\n");
+        return;
+    }
+
+    for (int u = 0; u < g->n; u++) {
+        for (struct Edge *edge = g->head[u];
              edge != NULL;
              edge = edge->next) {
 
-            if (edge->to == user &&
-                !visited[i]) {
+            int v = edge->to;
 
-                community_dfs(
-                    g,
-                    i,
-                    visited
-                );
+            if (u == v) {
+                continue;
+            }
+
+            int a = u < v ? u : v;
+            int b = u < v ? v : u;
+
+            size_t index =
+                (size_t)a * (size_t)g->n +
+                (size_t)b;
+
+            if (edge->p > strongest[index]) {
+                strongest[index] = edge->p;
             }
         }
     }
-}
 
-/*
- * Detect structural communities as
- * connected components.
- */
-void detect_communities(const struct Graph *g) {
-    int visited[1000] = {0};
-    int community_count = 0;
+    int edge_count = 0;
 
-    printf("\nCOMMUNITY ANALYSIS\n");
+    for (int u = 0; u < g->n; u++) {
+        for (int v = u + 1; v < g->n; v++) {
+            if (strongest[
+                    (size_t)u * (size_t)g->n +
+                    (size_t)v
+                ] > 0.0) {
+
+                edge_count++;
+            }
+        }
+    }
+
+    struct UndirectedEdge *edges = NULL;
+
+    if (edge_count > 0) {
+        edges = malloc(
+            (size_t)edge_count *
+            sizeof(*edges)
+        );
+
+        if (edges == NULL) {
+            free(strongest);
+            printf("memory allocation failed\n");
+            return;
+        }
+    }
+
+    int position = 0;
+
+    for (int u = 0; u < g->n; u++) {
+        for (int v = u + 1; v < g->n; v++) {
+            double probability =
+                strongest[
+                    (size_t)u * (size_t)g->n +
+                    (size_t)v
+                ];
+
+            if (probability > 0.0) {
+                edges[position].u = u;
+                edges[position].v = v;
+
+                /*
+                 * Strong probability -> small distance.
+                 */
+                edges[position].weight =
+                    1.0 - probability;
+
+                position++;
+            }
+        }
+    }
+
+    free(strongest);
+
+    int labels[1000];
+    long long operations = 0;
+
+    int community_count =
+        kruskal_k_clustering(
+            g->n,
+            edges,
+            edge_count,
+            k,
+            labels,
+            &operations
+        );
+
+    free(edges);
+
+    if (community_count < 0) {
+        printf(
+            "cannot form exactly %d communities "
+            "from the available relationships\n",
+            k
+        );
+        return;
+    }
+
+    printf("\nKRUSKAL COMMUNITY ANALYSIS\n");
     printf("----------------------------------------\n");
 
-    for (int i = 0; i < g->n; i++) {
-        if (!visited[i]) {
-            community_count++;
+    for (int community = 0;
+         community < community_count;
+         community++) {
 
-            printf(
-                "Community %d: ",
-                community_count
-            );
+        printf("Community %d: ", community + 1);
 
-            community_dfs(
-                g,
-                i,
-                visited
-            );
+        int first = 1;
 
-            printf("\n");
+        for (int user = 0; user < g->n; user++) {
+            if (labels[user] == community) {
+                if (!first) {
+                    printf(", ");
+                }
+
+                printf("%s", g->names[user]);
+                first = 0;
+            }
         }
+
+        printf("\n");
     }
 
     printf("----------------------------------------\n");
     printf(
         "Total communities: %d\n",
         community_count
+    );
+    printf(
+        "Kruskal operations: %lld\n",
+        operations
+    );
+    printf(
+        "Model: undirected distance = "
+        "1 - strongest tie probability\n"
     );
 }
 

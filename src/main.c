@@ -98,8 +98,19 @@ int main(int argc, char *argv[]) {
         }
 
         else if (choice == 4) {
-            detect_communities(&g);
-        }
+    int k;
+
+    printf("\nCOMMUNITY ANALYSIS\n");
+    printf("----------------------------------------\n");
+    printf("Enter desired number of communities: ");
+
+    if (scanf("%d", &k) != 1) {
+        printf("Invalid input.\n");
+        return 1;
+    }
+
+    detect_communities(&g, k);
+}
 
         else if (choice == 5) {
             int k;

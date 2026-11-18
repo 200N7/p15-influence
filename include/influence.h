@@ -11,7 +11,10 @@ int most_likely_path(
 
 void rank_influencers(const struct Graph *g);
 
-void detect_communities(const struct Graph *g);
+void detect_communities(
+    const struct Graph *g,
+    int k
+);
 
 void select_seeds(const struct Graph *g, int k);
 
