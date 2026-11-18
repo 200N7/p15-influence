@@ -2,7 +2,10 @@
 #include <string.h>
 #include "influence.h"
 
-/* Find the internal index of a user by name. */
+/*
+ * Find the internal index of a user by name.
+ * Returns -1 if the user does not exist.
+ */
 static int find_user(const struct Graph *g, const char *name) {
     for (int i = 0; i < g->n; i++) {
         if (strcmp(g->names[i], name) == 0) {
@@ -14,7 +17,9 @@ static int find_user(const struct Graph *g, const char *name) {
 }
 
 /*
- * Finds the path having the maximum product of edge probabilities.
+ * Find the path with the maximum product of
+ * influence probabilities.
+ *
  * This uses a Dijkstra-style greedy approach.
  */
 int most_likely_path(
@@ -34,7 +39,9 @@ int most_likely_path(
     int previous[1000];
     int visited[1000];
 
-    /* Initialize all users. */
+    /*
+     * Initialize algorithm state.
+     */
     for (int i = 0; i < g->n; i++) {
         probability[i] = 0.0;
         previous[i] = -1;
@@ -42,14 +49,14 @@ int most_likely_path(
     }
 
     /*
-     * Probability of reaching the source from itself is 1,
-     * representing 100 percent.
+     * Probability of reaching the source
+     * from itself is 1.
      */
     probability[src] = 1.0;
 
     /*
-     * Repeatedly select the unvisited user having the
-     * highest probability discovered so far.
+     * Repeatedly choose the unvisited user
+     * with the highest probability.
      */
     for (int step = 0; step < g->n; step++) {
         int u = -1;
@@ -72,19 +79,20 @@ int most_likely_path(
         visited[u] = 1;
 
         /*
-         * Once the destination is selected, its best
-         * probability has been determined.
+         * Destination has obtained its best
+         * probability.
          */
         if (u == dst) {
             break;
         }
 
         /*
-         * Relax all outgoing influence edges of user u.
+         * Relax outgoing influence edges.
          */
-        struct Edge *edge = g->head[u];
+        for (struct Edge *edge = g->head[u];
+             edge != NULL;
+             edge = edge->next) {
 
-        while (edge != NULL) {
             double new_probability =
                 probability[u] * edge->p;
 
@@ -92,24 +100,22 @@ int most_likely_path(
                 probability[edge->to] = new_probability;
                 previous[edge->to] = u;
             }
-
-            edge = edge->next;
         }
     }
 
     /*
-     * If destination probability is still zero,
-     * no influence path exists.
+     * Destination cannot be reached.
      */
     if (probability[dst] == 0.0) {
         printf("no influence path from %s to %s\n",
-               source, target);
+               source,
+               target);
+
         return 2;
     }
 
     /*
-     * Reconstruct the path by following the previous[]
-     * array backwards from destination to source.
+     * Reconstruct the path backwards.
      */
     int path[1000];
     int path_length = 0;
@@ -126,7 +132,7 @@ int most_likely_path(
     }
 
     /*
-     * Safety check: reconstructed path must reach source.
+     * Safety check.
      */
     if (path[path_length - 1] != src) {
         printf("could not reconstruct influence path\n");
@@ -136,8 +142,7 @@ int most_likely_path(
     printf("Most likely influence path: ");
 
     /*
-     * path[] currently contains destination -> source,
-     * so print it in reverse.
+     * Print path from source to destination.
      */
     for (int i = path_length - 1; i >= 0; i--) {
         printf("%s", g->names[path[i]]);
@@ -153,49 +158,41 @@ int most_likely_path(
 
     return 0;
 }
+
 /*
- * Rank users by total outgoing influence.
- *
- * Influence score of a user is the sum of the probabilities
- * of all outgoing edges from that user.
- *
- * Example:
- * A -> B = 0.90
- * A -> C = 0.50
- *
- * Score(A) = 0.90 + 0.50 = 1.40
+ * Rank users according to their total
+ * direct outgoing influence.
  */
 void rank_influencers(const struct Graph *g) {
     double score[1000];
     int order[1000];
 
     /*
-     * Calculate the influence score of every user.
+     * Calculate direct influence score.
      */
     for (int i = 0; i < g->n; i++) {
         score[i] = 0.0;
         order[i] = i;
 
-        struct Edge *edge = g->head[i];
+        for (struct Edge *edge = g->head[i];
+             edge != NULL;
+             edge = edge->next) {
 
-        while (edge != NULL) {
             score[i] += edge->p;
-            edge = edge->next;
         }
     }
 
     /*
-     * Selection sort users in descending order
-     * according to influence score.
-     *
-     * We implement the sorting ourselves instead
-     * of using a library sorting function.
+     * Selection sort in descending order
+     * of influence score.
      */
     for (int i = 0; i < g->n - 1; i++) {
         int best = i;
 
         for (int j = i + 1; j < g->n; j++) {
-            if (score[order[j]] > score[order[best]]) {
+            if (score[order[j]] >
+                score[order[best]]) {
+
                 best = j;
             }
         }
@@ -221,11 +218,13 @@ void rank_influencers(const struct Graph *g) {
 
     printf("----------------------------------------\n");
 }
+
 /*
- * Depth-first search used for community detection.
+ * Recursive DFS used by community detection.
  *
- * For community analysis we treat a relationship as a
- * connection even if its stored direction is opposite.
+ * For this analysis, edge direction is ignored.
+ * Therefore both outgoing and incoming
+ * relationships are considered.
  */
 static void community_dfs(
     const struct Graph *g,
@@ -244,31 +243,38 @@ static void community_dfs(
          edge = edge->next) {
 
         if (!visited[edge->to]) {
-            community_dfs(g, edge->to, visited);
+            community_dfs(
+                g,
+                edge->to,
+                visited
+            );
         }
     }
 
     /*
-     * Also check incoming relationships so that the
-     * graph is treated as undirected for communities.
+     * Follow incoming relationships.
      */
     for (int i = 0; i < g->n; i++) {
         for (struct Edge *edge = g->head[i];
              edge != NULL;
              edge = edge->next) {
 
-            if (edge->to == user && !visited[i]) {
-                community_dfs(g, i, visited);
+            if (edge->to == user &&
+                !visited[i]) {
+
+                community_dfs(
+                    g,
+                    i,
+                    visited
+                );
             }
         }
     }
 }
 
 /*
- * Detect structural communities using connected components.
- *
- * Users reachable through relationships belong to the
- * same structural community.
+ * Detect structural communities as
+ * connected components.
  */
 void detect_communities(const struct Graph *g) {
     int visited[1000] = {0};
@@ -281,14 +287,90 @@ void detect_communities(const struct Graph *g) {
         if (!visited[i]) {
             community_count++;
 
-            printf("Community %d: ", community_count);
+            printf(
+                "Community %d: ",
+                community_count
+            );
 
-            community_dfs(g, i, visited);
+            community_dfs(
+                g,
+                i,
+                visited
+            );
 
             printf("\n");
         }
     }
 
     printf("----------------------------------------\n");
-    printf("Total communities: %d\n", community_count);
+    printf(
+        "Total communities: %d\n",
+        community_count
+    );
+}
+
+/*
+ * Select high-value seed users for
+ * information dissemination.
+ *
+ * The greedy strategy selects users with
+ * the highest total outgoing influence.
+ */
+void select_seeds(const struct Graph *g, int k) {
+    if (k <= 0 || k > g->n) {
+        printf("invalid number of seeds\n");
+        return;
+    }
+
+    double score[1000];
+    int selected[1000] = {0};
+
+    /*
+     * Calculate dissemination score.
+     */
+    for (int i = 0; i < g->n; i++) {
+        score[i] = 0.0;
+
+        for (struct Edge *edge = g->head[i];
+             edge != NULL;
+             edge = edge->next) {
+
+            score[i] += edge->p;
+        }
+    }
+
+    printf("\nHIGH-VALUE DISSEMINATION PLAN\n");
+    printf("----------------------------------------\n");
+    printf("Recommended seed users:\n");
+
+    /*
+     * Greedily choose the highest-scoring
+     * unselected user k times.
+     */
+    for (int position = 0;
+         position < k;
+         position++) {
+
+        int best_user = -1;
+
+        for (int i = 0; i < g->n; i++) {
+            if (!selected[i] &&
+                (best_user == -1 ||
+                 score[i] > score[best_user])) {
+
+                best_user = i;
+            }
+        }
+
+        selected[best_user] = 1;
+
+        printf(
+            "%d. %s  score: %.4f\n",
+            position + 1,
+            g->names[best_user],
+            score[best_user]
+        );
+    }
+
+    printf("----------------------------------------\n");
 }

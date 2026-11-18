@@ -53,7 +53,8 @@ int main(int argc, char *argv[]) {
         printf("2. Most likely influence path\n");
         printf("3. Rank influential users\n");
         printf("4. Detect communities\n");
-        printf("5. Exit\n");
+        printf("5. Plan high-value dissemination\n");
+        printf("6. Exit\n");
         printf("----------------------------------------\n");
         printf("Enter choice: ");
 
@@ -101,14 +102,29 @@ int main(int argc, char *argv[]) {
         }
 
         else if (choice == 5) {
+            int k;
+
+            printf("\nHIGH-VALUE DISSEMINATION PLANNER\n");
+            printf("----------------------------------------\n");
+            printf("Enter number of seed users: ");
+
+            if (scanf("%d", &k) != 1) {
+                printf("Invalid input.\n");
+                return 1;
+            }
+
+            select_seeds(&g, k);
+        }
+
+        else if (choice == 6) {
             printf("\nExiting program.\n");
         }
 
         else {
-            printf("\nInvalid choice. Please select 1-5.\n");
+            printf("\nInvalid choice. Please select 1-6.\n");
         }
 
-    } while (choice != 5);
+    } while (choice != 6);
 
     return 0;
 }
