@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "influence.h"
+#include "algorithms/greedy.h"
 
 /*
  * Find the internal index of a user by name.
@@ -27,6 +30,14 @@ int most_likely_path(
     const char *source,
     const char *target
 ) {
+    if (g == NULL ||
+        source == NULL ||
+        target == NULL) {
+
+        printf("invalid path request\n");
+        return 1;
+    }
+
     int src = find_user(g, source);
     int dst = find_user(g, target);
 
@@ -34,131 +45,158 @@ int most_likely_path(
         printf("user not found\n");
         return 1;
     }
-
-    double probability[1000];
-    int previous[1000];
-    int visited[1000];
-
-    /*
-     * Initialize algorithm state.
-     */
-    for (int i = 0; i < g->n; i++) {
-        probability[i] = 0.0;
-        previous[i] = -1;
-        visited[i] = 0;
-    }
+    if (src == dst) {
+    printf("Most likely influence path: %s\n",
+           g->names[src]);
+    printf("Influence probability: 1.0000\n");
+    printf("Dijkstra edge relaxations: 0\n");
+    printf("Model: source and target are identical\n");
+    return 0;
+}
 
     /*
-     * Probability of reaching the source
-     * from itself is 1.
+     * Count directed influence edges.
      */
-    probability[src] = 1.0;
+    int edge_count = 0;
 
-    /*
-     * Repeatedly choose the unvisited user
-     * with the highest probability.
-     */
-    for (int step = 0; step < g->n; step++) {
-        int u = -1;
-        double best = -1.0;
-
-        for (int i = 0; i < g->n; i++) {
-            if (!visited[i] && probability[i] > best) {
-                best = probability[i];
-                u = i;
-            }
-        }
-
-        /*
-         * No reachable unvisited user remains.
-         */
-        if (u == -1 || probability[u] == 0.0) {
-            break;
-        }
-
-        visited[u] = 1;
-
-        /*
-         * Destination has obtained its best
-         * probability.
-         */
-        if (u == dst) {
-            break;
-        }
-
-        /*
-         * Relax outgoing influence edges.
-         */
+    for (int u = 0; u < g->n; u++) {
         for (struct Edge *edge = g->head[u];
              edge != NULL;
              edge = edge->next) {
 
-            double new_probability =
-                probability[u] * edge->p;
+            edge_count++;
+        }
+    }
 
-            if (new_probability > probability[edge->to]) {
-                probability[edge->to] = new_probability;
-                previous[edge->to] = u;
+    struct WeightedEdge *edges = NULL;
+
+    if (edge_count > 0) {
+        edges = malloc(
+            (size_t)edge_count *
+            sizeof(*edges)
+        );
+
+        if (edges == NULL) {
+            printf("memory allocation failed\n");
+            return 1;
+        }
+    }
+
+    /*
+     * Transform propagation probabilities into
+     * non-negative shortest-path weights:
+     *
+     * weight = -log(p)
+     *
+     * Minimizing the sum of these weights is
+     * equivalent to maximizing the product of p.
+     */
+    int index = 0;
+
+    for (int u = 0; u < g->n; u++) {
+        for (struct Edge *edge = g->head[u];
+             edge != NULL;
+             edge = edge->next) {
+
+            if (edge->p <= 0.0 ||
+                edge->p > 1.0) {
+
+                free(edges);
+                printf(
+                    "invalid probability on edge %s -> %s\n",
+                    g->names[u],
+                    g->names[edge->to]
+                );
+
+                return 1;
             }
+
+            edges[index].from = u;
+            edges[index].to = edge->to;
+            edges[index].weight =
+                -log(edge->p);
+
+            index++;
         }
     }
 
-    /*
-     * Destination cannot be reached.
-     */
-    if (probability[dst] == 0.0) {
-        printf("no influence path from %s to %s\n",
-               source,
-               target);
+    double distance[1000];
+    int previous[1000];
+    long long relaxations = 0;
 
-        return 2;
+    int result = dijkstra_heap(
+        g->n,
+        edges,
+        edge_count,
+        src,
+        distance,
+        previous,
+        &relaxations
+    );
+
+    free(edges);
+
+    if (result != 1) {
+        printf("influence path analysis failed\n");
+        return 1;
     }
 
-    /*
-     * Reconstruct the path backwards.
-     */
     int path[1000];
-    int path_length = 0;
-    int current = dst;
 
-    while (current != -1) {
-        path[path_length++] = current;
+    int path_length = reconstruct_path(
+        src,
+        dst,
+        previous,
+        g->n,
+        path
+    );
 
-        if (current == src) {
-            break;
-        }
+    if (path_length == 0) {
+        printf(
+            "no influence path from %s to %s\n",
+            source,
+            target
+        );
 
-        current = previous[current];
+        return 2;
     }
 
     /*
-     * Safety check.
+     * Convert shortest transformed distance back
+     * to propagation probability.
+     *
+     * exp(-sum(-log p)) = product(p)
      */
-    if (path[path_length - 1] != src) {
-        printf("could not reconstruct influence path\n");
-        return 2;
-    }
+    double probability =
+        exp(-distance[dst]);
 
     printf("Most likely influence path: ");
 
-    /*
-     * Print path from source to destination.
-     */
-    for (int i = path_length - 1; i >= 0; i--) {
+    for (int i = 0; i < path_length; i++) {
         printf("%s", g->names[path[i]]);
 
-        if (i > 0) {
+        if (i + 1 < path_length) {
             printf(" -> ");
         }
     }
 
     printf("\n");
-    printf("Influence probability: %.4f\n",
-           probability[dst]);
+    printf(
+        "Influence probability: %.4f\n",
+        probability
+    );
+
+    printf(
+        "Dijkstra edge relaxations: %lld\n",
+        relaxations
+    );
+
+    printf(
+        "Model: edge cost = -log(probability)\n"
+    );
 
     return 0;
 }
-
 /*
  * Rank users according to their total
  * direct outgoing influence.
