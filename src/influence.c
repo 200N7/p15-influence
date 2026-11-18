@@ -221,3 +221,74 @@ void rank_influencers(const struct Graph *g) {
 
     printf("----------------------------------------\n");
 }
+/*
+ * Depth-first search used for community detection.
+ *
+ * For community analysis we treat a relationship as a
+ * connection even if its stored direction is opposite.
+ */
+static void community_dfs(
+    const struct Graph *g,
+    int user,
+    int visited[]
+) {
+    visited[user] = 1;
+
+    printf("%s ", g->names[user]);
+
+    /*
+     * Follow outgoing relationships.
+     */
+    for (struct Edge *edge = g->head[user];
+         edge != NULL;
+         edge = edge->next) {
+
+        if (!visited[edge->to]) {
+            community_dfs(g, edge->to, visited);
+        }
+    }
+
+    /*
+     * Also check incoming relationships so that the
+     * graph is treated as undirected for communities.
+     */
+    for (int i = 0; i < g->n; i++) {
+        for (struct Edge *edge = g->head[i];
+             edge != NULL;
+             edge = edge->next) {
+
+            if (edge->to == user && !visited[i]) {
+                community_dfs(g, i, visited);
+            }
+        }
+    }
+}
+
+/*
+ * Detect structural communities using connected components.
+ *
+ * Users reachable through relationships belong to the
+ * same structural community.
+ */
+void detect_communities(const struct Graph *g) {
+    int visited[1000] = {0};
+    int community_count = 0;
+
+    printf("\nCOMMUNITY ANALYSIS\n");
+    printf("----------------------------------------\n");
+
+    for (int i = 0; i < g->n; i++) {
+        if (!visited[i]) {
+            community_count++;
+
+            printf("Community %d: ", community_count);
+
+            community_dfs(g, i, visited);
+
+            printf("\n");
+        }
+    }
+
+    printf("----------------------------------------\n");
+    printf("Total communities: %d\n", community_count);
+}

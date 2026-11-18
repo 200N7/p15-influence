@@ -1,0 +1,6 @@
+Alice Bob 0.90
+Bob Carol 0.80
+Carol Alice 0.70
+David Emma 0.85
+Emma Frank 0.75
+Grace Henry 0.95
