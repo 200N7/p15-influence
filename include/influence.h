@@ -16,6 +16,10 @@ void detect_communities(
     int k
 );
 
-void select_seeds(const struct Graph *g, int k);
+void plan_dissemination(
+    const struct Graph *g,
+    int budget,
+    const int costs[]
+);
 
 #endif

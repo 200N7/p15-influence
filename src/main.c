@@ -112,20 +112,54 @@ int main(int argc, char *argv[]) {
     detect_communities(&g, k);
 }
 
-        else if (choice == 5) {
-            int k;
+       else if (choice == 5) {
+    int budget;
+    int costs[1000];
 
-            printf("\nHIGH-VALUE DISSEMINATION PLANNER\n");
-            printf("----------------------------------------\n");
-            printf("Enter number of seed users: ");
+    printf("\nBUDGET-CONSTRAINED DISSEMINATION PLANNER\n");
+    printf("----------------------------------------\n");
 
-            if (scanf("%d", &k) != 1) {
-                printf("Invalid input.\n");
-                return 1;
-            }
+    printf("Enter total campaign budget: ");
 
-            select_seeds(&g, k);
+    if (scanf("%d", &budget) != 1) {
+        printf("Invalid budget input.\n");
+        return 1;
+    }
+
+    if (budget < 0) {
+        printf("Budget cannot be negative.\n");
+        continue;
+    }
+
+    printf("\nEnter campaign cost for each user:\n");
+
+    int valid_costs = 1;
+
+    for (int i = 0; i < g.n; i++) {
+        printf("%s: ", g.names[i]);
+
+        if (scanf("%d", &costs[i]) != 1) {
+            printf("Invalid cost input.\n");
+            return 1;
         }
+
+        if (costs[i] < 0) {
+            printf("Cost cannot be negative.\n");
+            valid_costs = 0;
+            break;
+        }
+    }
+
+    if (!valid_costs) {
+        continue;
+    }
+
+    plan_dissemination(
+        &g,
+        budget,
+        costs
+    );
+}
 
         else if (choice == 6) {
             printf("\nExiting program.\n");

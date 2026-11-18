@@ -4,6 +4,7 @@
 #include <math.h>
 #include "influence.h"
 #include "algorithms/greedy.h"
+#include "algorithms/dp.h"
 
 /*
  * Find the internal index of a user by name.
@@ -447,67 +448,140 @@ void detect_communities(
 }
 
 /*
- * Select high-value seed users for
- * information dissemination.
+ * Plan high-value information dissemination under
+ * a limited campaign budget using exact 0/1 knapsack.
  *
- * The greedy strategy selects users with
- * the highest total outgoing influence.
+ * Each user's value is derived from total direct outgoing
+ * influence. Because the DP implementation uses integer
+ * values, influence scores are scaled by 1000.
+ *
+ * costs[i] is the campaign cost of selecting user i.
  */
-void select_seeds(const struct Graph *g, int k) {
-    if (k <= 0 || k > g->n) {
-        printf("invalid number of seeds\n");
+void plan_dissemination(
+    const struct Graph *g,
+    int budget,
+    const int costs[]
+) {
+    if (g == NULL ||
+        costs == NULL ||
+        g->n <= 0 ||
+        budget < 0) {
+
+        printf("invalid dissemination request\n");
         return;
     }
 
-    double score[1000];
-    int selected[1000] = {0};
+    struct KnapsackItem *items = malloc(
+        (size_t)g->n * sizeof(*items)
+    );
 
-    /*
-     * Calculate dissemination score.
-     */
+    int *selected = calloc(
+        (size_t)g->n,
+        sizeof(int)
+    );
+
+    if (items == NULL || selected == NULL) {
+        free(items);
+        free(selected);
+        printf("memory allocation failed\n");
+        return;
+    }
+
+    double influence_score[1000];
+
     for (int i = 0; i < g->n; i++) {
-        score[i] = 0.0;
+        if (costs[i] < 0) {
+            free(items);
+            free(selected);
+            printf("seed costs cannot be negative\n");
+            return;
+        }
+
+        influence_score[i] = 0.0;
 
         for (struct Edge *edge = g->head[i];
              edge != NULL;
              edge = edge->next) {
 
-            score[i] += edge->p;
+            influence_score[i] += edge->p;
+        }
+
+        items[i].weight = costs[i];
+
+        /*
+         * Scale probability-based influence to an integer
+         * value while retaining three decimal places.
+         */
+        items[i].value =
+            (long long)(
+                influence_score[i] * 1000.0 + 0.5
+            );
+    }
+
+    long long operations = 0;
+
+    long long optimal_value = knapsack_dp(
+        items,
+        g->n,
+        budget,
+        selected,
+        &operations
+    );
+
+    if (optimal_value < 0) {
+        free(items);
+        free(selected);
+        printf("dissemination optimization failed\n");
+        return;
+    }
+
+    printf("\nBUDGET-CONSTRAINED DISSEMINATION PLAN\n");
+    printf("----------------------------------------\n");
+    printf("Budget: %d\n", budget);
+    printf("Selected seed users:\n");
+
+    int total_cost = 0;
+    int seed_count = 0;
+
+    for (int i = 0; i < g->n; i++) {
+        if (selected[i]) {
+            seed_count++;
+            total_cost += costs[i];
+
+            printf(
+                "%d. %-20s cost: %-5d influence: %.4f\n",
+                seed_count,
+                g->names[i],
+                costs[i],
+                influence_score[i]
+            );
         }
     }
 
-    printf("\nHIGH-VALUE DISSEMINATION PLAN\n");
-    printf("----------------------------------------\n");
-    printf("Recommended seed users:\n");
-
-    /*
-     * Greedily choose the highest-scoring
-     * unselected user k times.
-     */
-    for (int position = 0;
-         position < k;
-         position++) {
-
-        int best_user = -1;
-
-        for (int i = 0; i < g->n; i++) {
-            if (!selected[i] &&
-                (best_user == -1 ||
-                 score[i] > score[best_user])) {
-
-                best_user = i;
-            }
-        }
-
-        selected[best_user] = 1;
-
-        printf(
-            "%d. %s  score: %.4f\n",
-            position + 1,
-            g->names[best_user],
-            score[best_user]
-        );
+    if (seed_count == 0) {
+        printf("None within the available budget.\n");
     }
 
     printf("----------------------------------------\n");
+    printf("Total cost: %d / %d\n",
+           total_cost,
+           budget);
+
+    printf(
+        "Total dissemination value: %.3f\n",
+        (double)optimal_value / 1000.0
+    );
+
+    printf(
+        "Knapsack DP operations: %lld\n",
+        operations
+    );
+
+    printf(
+        "Model: maximize additive direct influence "
+        "under campaign budget\n"
+    );
+
+    free(items);
+    free(selected);
 }
