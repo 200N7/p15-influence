@@ -1,0 +1,128 @@
+P15 INTEGRATED SCENARIO EVIDENCE
+================================
+
+1. NORMAL SCENARIO
+------------------
+Dataset: data/normal.txt
+Users: 9
+
+Alice -> Grace
+
+Most likely influence path:
+Alice -> Bob -> Emma -> Frank -> Grace
+
+Influence probability: 0.0207
+Dijkstra edge relaxations: 20
+Model: edge cost = -log(probability)
+
+Kruskal community analysis, k = 3:
+
+Community 1: Alice, Bob, Carol
+Community 2: David, Emma, Frank
+Community 3: Grace, Henry, Iris
+
+Total communities: 3
+Kruskal operations: 6
+
+Audience capacity, Alice -> Grace:
+
+Maximum dissemination capacity: 34
+Minimum cut capacity: 34
+
+Bottleneck relationships:
+David -> Henry   capacity: 14
+Frank -> Grace   capacity: 20
+
+Ford-Fulkerson augmentations: 3
+Verification: max-flow = min-cut
+
+
+2. VIRAL SHOCK SCENARIO
+-----------------------
+Dataset: data/shock.txt
+Users: 9
+
+Alice -> Grace
+
+Most likely influence path:
+Alice -> Emma -> Grace
+
+Influence probability: 0.8370
+Dijkstra edge relaxations: 25
+Model: edge cost = -log(probability)
+
+Kruskal community analysis, k = 3:
+
+Community 1: Alice, Bob, Emma, Frank, Grace, Henry
+Community 2: Carol, David
+Community 3: Iris
+
+Total communities: 3
+Kruskal operations: 6
+
+Audience capacity, Alice -> Grace:
+
+Maximum dissemination capacity: 227
+Minimum cut capacity: 227
+
+Bottleneck relationships:
+Alice -> Emma    capacity: 90
+Alice -> Carol   capacity: 55
+Alice -> Bob     capacity: 82
+
+Ford-Fulkerson augmentations: 8
+Verification: max-flow = min-cut
+
+
+3. STRESS SCENARIO
+------------------
+Dataset: data/stress.txt
+
+Users: 500
+Directed relationships: 2000
+
+User000 -> User499
+
+Most likely influence path:
+
+User000 -> User097 -> User128 -> User135 ->
+User166 -> User167 -> User264 -> User295 ->
+User302 -> User333 -> User430 -> User461 ->
+User468 -> User499
+
+Influence probability: 0.0503
+Dijkstra edge relaxations: 2000
+
+Audience capacity:
+
+Maximum dissemination capacity: 172
+Minimum cut capacity: 172
+
+Bottleneck relationships:
+User402 -> User499   capacity: 36
+User468 -> User499   capacity: 70
+User492 -> User499   capacity: 29
+User498 -> User499   capacity: 37
+
+Ford-Fulkerson augmentations: 131
+Verification: max-flow = min-cut
+
+
+4. OBSERVATION
+--------------
+The three scenarios demonstrate different operating conditions while
+using the same integrated application.
+
+Normal:
+Low cross-community propagation and clearly separated communities.
+
+Viral shock:
+Influence probability and network capacity increase sharply, while
+community structure reorganizes because of stronger cross-community ties.
+
+Stress:
+The same algorithms remain operational on a deterministic 500-user,
+2000-relationship network.
+
+The stress dataset is reproducible using:
+bench/generate_stress.c

@@ -1,0 +1,365 @@
+========================================
+ P15 FULL AUTOMATED TEST SUITE
+========================================
+
+----------------------------------------
+Building test_sort_search
+----------------------------------------
+Running test_sort_search
+
+SORT AND SEARCH TESTS
+========================================
+[PASS] merge sort normal input
+[PASS] merge sort result is sorted
+[PASS] merge sort negatives and duplicates
+[PASS] merge sort single element
+[PASS] merge sort empty input
+[PASS] quick sort normal input
+[PASS] quick sort reverse-sorted input
+[PASS] quick sort already-sorted adversarial input
+[PASS] quick sort exposes quadratic sorted-input comparisons
+[PASS] quick sort all-equal values
+[PASS] iterative binary search existing key
+[PASS] iterative binary search missing key
+[PASS] iterative binary search single element
+[PASS] iterative binary search empty input
+[PASS] recursive binary search existing key
+[PASS] recursive binary search missing key
+[PASS] merge sort and quick sort agree
+========================================
+RESULT: 17/17 tests passed
+
+----------------------------------------
+Building test_divide_conquer
+----------------------------------------
+Running test_divide_conquer
+
+DIVIDE AND CONQUER TESTS - PART 1
+========================================
+[PASS] maximum subarray normal mixed input
+[PASS] maximum subarray all-negative input
+[PASS] maximum subarray single element
+[PASS] maximum subarray empty input
+[PASS] D&C maximum subarray agrees with Kadane
+[PASS] maximum subarray known oracle value
+[PASS] fast power normal exponent
+[PASS] fast power uses fewer multiplications
+[PASS] fast power exponent zero
+[PASS] fast power negative base
+[PASS] fast power detects signed overflow
+[PASS] fast power rejects null result pointer
+[PASS] celebrity exists
+[PASS] celebrity uses linear number of checks
+[PASS] celebrity none exists
+[PASS] celebrity single person
+[PASS] celebrity empty input
+[PASS] 2x2 classical and Strassen known result
+[PASS] Strassen uses 7 scalar multiplications for 2x2
+[PASS] classical uses 8 scalar multiplications for 2x2
+[PASS] Strassen padding works for 3x3 matrix
+[PASS] matrix multiplication negative values
+[PASS] matrix multiplication 1x1 boundary
+[PASS] classical matrix rejects invalid input
+[PASS] Strassen rejects invalid input
+[PASS] classical matrix detects multiplication overflow
+[PASS] Strassen detects multiplication overflow
+========================================
+RESULT: 27/27 tests passed
+
+----------------------------------------
+Building test_greedy
+----------------------------------------
+Running test_greedy
+
+GREEDY ALGORITHM TESTS - PART A
+========================================
+[PASS] activity selection known optimum
+[PASS] activity selection produces non-overlapping schedule
+[PASS] activity selection single activity
+[PASS] activity selection empty input
+[PASS] activity selection rejects invalid interval
+[PASS] interval partitioning equals maximum overlap
+[PASS] interval partitioning has no channel conflicts
+[PASS] interval partitioning empty input
+[PASS] interval partitioning rejects invalid interval
+[PASS] fractional knapsack known optimum
+[PASS] fractional knapsack selects correct fractions
+[PASS] fractional knapsack zero capacity
+[PASS] fractional knapsack rejects zero weight
+[PASS] fractional knapsack rejects negative value
+[PASS] Huffman creates code for each used symbol
+[PASS] Huffman codes are prefix-free
+[PASS] Huffman preserves all symbols
+[PASS] higher-frequency Huffman symbol is not longer than rare symbol
+[PASS] Huffman single-symbol boundary case
+[PASS] single-symbol Huffman code is prefix-free
+[PASS] Huffman empty frequency table
+[PASS] Huffman rejects null input
+[PASS] prefix-free validator catches invalid code set
+[PASS] Dijkstra normal graph succeeds
+[PASS] array and heap Dijkstra agree
+[PASS] Dijkstra known shortest distances
+[PASS] Dijkstra reconstructs shortest path
+[PASS] Dijkstra records relaxation operations
+[PASS] Dijkstra handles zero-weight edges
+[PASS] Dijkstra handles unreachable target
+[PASS] Dijkstra source equals target
+[PASS] array Dijkstra rejects negative edge
+[PASS] heap Dijkstra rejects negative edge
+[PASS] Dijkstra rejects invalid edge vertex
+[PASS] Dijkstra rejects invalid source
+[PASS] Dijkstra handles equal-cost shortest paths
+[PASS] Prim and Kruskal select V-1 edges on connected graph
+[PASS] Prim and Kruskal known MST weight
+[PASS] Prim and Kruskal MST weights agree
+[PASS] MST algorithms record operations
+[PASS] Prim and Kruskal produce forest on disconnected graph
+[PASS] minimum spanning forest known weight
+[PASS] Kruskal clustering produces requested 3 communities
+[PASS] Kruskal clustering recovers expected communities
+[PASS] Kruskal clustering k equals number of vertices
+[PASS] Kruskal clustering k equals one
+[PASS] Kruskal clustering rejects impossible k
+[PASS] Kruskal clustering rejects k zero
+[PASS] Kruskal clustering rejects k greater than V
+[PASS] MST rejects self-loop input
+[PASS] Kruskal rejects self-loop input
+[PASS] MST correctly handles negative edge weights
+========================================
+RESULT: 52/52 tests passed
+
+----------------------------------------
+Building test_dp
+----------------------------------------
+Running test_dp
+
+DYNAMIC PROGRAMMING TESTS - PART A
+========================================
+[PASS] 0/1 knapsack known optimum
+[PASS] 0/1 knapsack reconstructs optimal items
+[PASS] 0/1 knapsack records operations
+[PASS] 0/1 knapsack greedy-counterexample optimum
+[PASS] 0/1 knapsack zero capacity
+[PASS] 0/1 knapsack all items overweight
+[PASS] 0/1 knapsack exact capacity
+[PASS] 0/1 knapsack zero-weight item
+[PASS] 0/1 knapsack rejects negative weight
+[PASS] 0/1 knapsack rejects negative value
+[PASS] 0/1 knapsack empty item set
+[PASS] matrix-chain known textbook optimum
+[PASS] matrix-chain records operations
+[PASS] matrix-chain single matrix
+[PASS] matrix-chain two matrices
+[PASS] matrix-chain rectangular matrices
+[PASS] matrix-chain rejects zero dimension
+[PASS] matrix-chain rejects null dimensions
+[PASS] LCS known length
+[PASS] LCS reconstructs valid subsequence
+[PASS] LCS records operations
+[PASS] LCS identical strings
+[PASS] LCS empty string
+[PASS] LCS no common characters
+[PASS] LCS repeated-character case
+[PASS] LCS rejects null input
+[PASS] optimal BST known minimum cost
+[PASS] optimal BST reconstructs expected root
+[PASS] optimal BST records operations
+[PASS] optimal BST single key
+[PASS] optimal BST empty key set
+[PASS] optimal BST rejects negative frequency
+[PASS] Bellman-Ford accepts negative edges
+[PASS] Bellman-Ford known shortest distances
+[PASS] Bellman-Ford records relaxations
+[PASS] Bellman-Ford detects reachable negative cycle
+[PASS] Bellman-Ford ignores unreachable negative cycle
+[PASS] Bellman-Ford rejects invalid vertex
+[PASS] Bellman-Ford rejects invalid source
+[PASS] Floyd-Warshall normal graph succeeds
+[PASS] Floyd-Warshall known shortest distances
+[PASS] Floyd-Warshall records operations
+[PASS] Floyd-Warshall reconstructs shortest path
+[PASS] Floyd-Warshall handles parallel edges
+[PASS] Floyd-Warshall handles negative edge
+[PASS] Floyd-Warshall detects negative cycle
+[PASS] Floyd-Warshall handles unreachable pair
+[PASS] Held-Karp known optimal TSP cost
+[PASS] Held-Karp tour starts and ends at source
+[PASS] Held-Karp visits every vertex exactly once
+[PASS] Held-Karp records operations
+[PASS] Held-Karp single vertex
+[PASS] Held-Karp detects impossible tour
+[PASS] Held-Karp rejects negative distance
+[PASS] Held-Karp rejects instance larger than limit
+========================================
+RESULT: 55/55 tests passed
+
+----------------------------------------
+Building test_backtracking
+----------------------------------------
+Running test_backtracking
+
+BACKTRACKING TESTS
+========================================
+[PASS] N-Queens n=8 has exactly 92 solutions
+[PASS] N-Queens reconstructs valid solution
+[PASS] N-Queens records search nodes
+[PASS] N-Queens n=4 has exactly 2 solutions
+[PASS] N-Queens single queen
+[PASS] N-Queens n=3 has no solution
+[PASS] N-Queens rejects instance above safety limit
+[PASS] N-Queens rejects null output
+[PASS] subset sum finds valid target subset
+[PASS] subset sum records search nodes
+[PASS] subset sum reports impossible target
+[PASS] subset sum clears selection when impossible
+[PASS] subset sum target zero
+[PASS] subset sum empty set reaches zero
+[PASS] subset sum empty set cannot reach positive target
+[PASS] subset sum rejects negative values
+[PASS] backtracking knapsack known optimum
+[PASS] backtracking knapsack reconstructs optimal items
+[PASS] backtracking knapsack records nodes
+[PASS] backtracking knapsack zero capacity
+[PASS] backtracking knapsack handles zero-weight item
+[PASS] backtracking knapsack all items overweight
+[PASS] backtracking knapsack rejects negative weight
+[PASS] backtracking knapsack rejects negative value
+[PASS] backtracking knapsack empty item set
+========================================
+RESULT: 25/25 tests passed
+
+----------------------------------------
+Building test_branch_bound
+----------------------------------------
+Running test_branch_bound
+
+BRANCH AND BOUND TESTS
+========================================
+[PASS] FIFO branch-and-bound known optimum
+[PASS] LIFO branch-and-bound known optimum
+[PASS] best-bound branch-and-bound known optimum
+[PASS] all branch-and-bound strategies agree
+[PASS] FIFO reconstructs valid optimal selection
+[PASS] LIFO reconstructs valid optimal selection
+[PASS] best-bound reconstructs valid optimal selection
+[PASS] branch-and-bound records expanded nodes
+[PASS] B&B defeats greedy-ratio counterexample
+[PASS] B&B zero capacity
+[PASS] B&B handles zero-weight item
+[PASS] B&B zero-weight selection is valid
+[PASS] B&B all items overweight
+[PASS] B&B exact capacity
+[PASS] all B&B strategies agree on second optimum
+[PASS] B&B rejects negative weight
+[PASS] B&B rejects negative value
+[PASS] B&B rejects invalid strategy
+[PASS] B&B empty item set
+[PASS] B&B rejects instance above bitmask limit
+========================================
+RESULT: 20/20 tests passed
+
+----------------------------------------
+Building test_flow_matching
+----------------------------------------
+Running test_flow_matching
+
+FLOW AND MATCHING TESTS - PART A
+========================================
+[PASS] Ford-Fulkerson known maximum flow
+[PASS] Ford-Fulkerson records augmentations
+[PASS] min-cut separates source and sink
+[PASS] known minimum cut capacity
+[PASS] max-flow equals min-cut
+[PASS] Ford-Fulkerson disconnected source and sink
+[PASS] no augmentations when sink unreachable
+[PASS] Ford-Fulkerson identifies bottleneck capacity
+[PASS] min-cut exposes bottleneck
+[PASS] Ford-Fulkerson combines parallel capacities
+[PASS] Ford-Fulkerson handles zero-capacity edge
+[PASS] Ford-Fulkerson rejects negative capacity
+[PASS] Ford-Fulkerson rejects invalid vertex
+[PASS] Ford-Fulkerson rejects source equal to sink
+[PASS] min-cut rejects invalid input
+[PASS] maximum bipartite matching finds perfect matching
+[PASS] maximum matching assigns every left vertex
+[PASS] maximum matching records operations
+[PASS] exact matching escapes greedy trap
+[PASS] greedy matching exposes suboptimal result
+[PASS] exact matching quality exceeds greedy baseline
+[PASS] matching algorithms record operations
+[PASS] matching handles unmatched left vertex
+[PASS] matching respects smaller partition limit
+[PASS] matching handles duplicate edges
+[PASS] maximum matching handles empty graph
+[PASS] maximum matching rejects invalid endpoint
+[PASS] greedy matching rejects invalid endpoint
+========================================
+RESULT: 28/28 tests passed
+
+----------------------------------------
+Building test_number
+----------------------------------------
+Running test_number
+
+NUMBER REPRESENTATION / CRT TESTS
+========================================
+[PASS] GCD normal input
+[PASS] GCD handles negative input
+[PASS] GCD handles zero
+[PASS] extended GCD returns correct gcd
+[PASS] extended GCD satisfies Bezout identity
+[PASS] modular inverse known result
+[PASS] modular inverse rejects non-coprime values
+[PASS] modular inverse handles negative value
+[PASS] CRT known solution 23 modulo 105
+[PASS] CRT records operations
+[PASS] CRT result satisfies every congruence
+[PASS] CRT normalizes negative remainder
+[PASS] CRT single modulus
+[PASS] CRT rejects non-coprime moduli
+[PASS] CRT rejects invalid modulus
+[PASS] CRT rejects modulus-product overflow
+[PASS] CRT rejects empty input
+========================================
+RESULT: 17/17 tests passed
+
+----------------------------------------
+Building test_string_matching
+----------------------------------------
+Running test_string_matching
+
+STRING MATCHING TESTS
+========================================
+[PASS] KMP known match position
+[PASS] all algorithms agree on normal input
+[PASS] naive finds overlapping matches
+[PASS] all algorithms preserve overlapping matches
+[PASS] Rabin-Karp finds beginning and end matches
+[PASS] all algorithms agree at text boundaries
+[PASS] all algorithms agree when pattern absent
+[PASS] string matching reports no match
+[PASS] all algorithms handle pattern longer than text
+[PASS] finite automaton handles single-character pattern
+[PASS] all algorithms agree on single-character pattern
+[PASS] all algorithms handle pattern equal to text
+[PASS] whole-text match occurs at zero
+[PASS] all algorithms agree on adversarial repetitive input
+[PASS] naive and KMP return identical adversarial result
+[PASS] KMP uses fewer comparisons on repetitive adversarial input
+[PASS] string matching finds repeated hashtag
+[PASS] all algorithms agree on hashtag-like text
+[PASS] naive records comparisons
+[PASS] Rabin-Karp records operations
+[PASS] finite automaton records operations
+[PASS] KMP records comparisons
+[PASS] naive rejects empty pattern
+[PASS] Rabin-Karp rejects empty pattern
+[PASS] finite automaton rejects empty pattern
+[PASS] KMP rejects empty pattern
+[PASS] string matching rejects null text
+========================================
+RESULT: 27/27 tests passed
+
+========================================
+ ALL ALGORITHM TEST SUITES COMPLETED
+========================================

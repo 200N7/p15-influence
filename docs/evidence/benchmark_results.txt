@@ -1,0 +1,63 @@
+========================================
+ P15 ALGORITHM BENCHMARK SUITE
+========================================
+
+SORTING BENCHMARK
+------------------------------------------------------------
+N        Method   Comparisons    Time(ms)     Sorted  
+100      Merge    538            0.000        PASS    
+100      Quick    690            0.000        PASS    
+1000     Merge    8758           0.000        PASS    
+1000     Quick    10215          0.000        PASS    
+5000     Merge    55162          0.000        PASS    
+5000     Quick    73093          0.000        PASS    
+10000    Merge    120482         0.000        PASS    
+10000    Quick    170751         0.000        PASS    
+
+DIJKSTRA BENCHMARK
+-----------------------------------------------------------------
+V        Method     Relaxations    Time(ms)     Agree     
+50       Array      142            0.000        PASS      
+50       Heap       142            0.000        PASS      
+100      Array      292            0.000        PASS      
+100      Heap       292            0.000        PASS      
+250      Array      742            0.000        PASS      
+250      Heap       742            0.000        PASS      
+500      Array      1492           2.000        PASS      
+500      Heap       1492           0.000        PASS      
+
+KNAPSACK BENCHMARK
+--------------------------------------------------------------------------
+N      Method       Value          Operations     Time(ms)    
+10     Fractional   664.20         9              0.000       
+10     0/1-DP       637            510            0.000       
+50     Fractional   2605.00        50             0.000       
+50     0/1-DP       2599           12550          0.000       
+100    Fractional   5458.00        100            0.000       
+100    0/1-DP       5456           50100          2.000       
+250    Fractional   14269.00       250            0.000       
+250    0/1-DP       14269          312750         6.000       
+Note: Fractional and 0/1 knapsack solve different problem variants; values are not expected to match.
+
+STRING MATCHING BENCHMARK
+--------------------------------------------------------------------------
+N        Method             Operations     Time(ms)     Agree     
+100      Naive              570            0.000        PASS      
+100      Rabin-Karp         107            0.000        PASS      
+100      Finite-Automaton   6993           0.000        PASS      
+100      KMP                203            0.000        PASS      
+1000     Naive              5970           0.000        PASS      
+1000     Rabin-Karp         1007           0.000        PASS      
+1000     Finite-Automaton   7893           0.000        PASS      
+1000     KMP                2003           0.000        PASS      
+5000     Naive              29970          0.000        PASS      
+5000     Rabin-Karp         5007           0.000        PASS      
+5000     Finite-Automaton   11893          0.000        PASS      
+5000     KMP                10003          0.000        PASS      
+10000    Naive              59970          0.000        PASS      
+10000    Rabin-Karp         10007          0.000        PASS      
+10000    Finite-Automaton   16893          0.000        PASS      
+10000    KMP                20003          0.000        PASS      
+
+NOTE: Operation counts are the primary comparison metric.
+Very small elapsed times may appear as 0.000 ms because of platform clock resolution.
