@@ -1,2 +1,17 @@
+# Main executable
 p15.exe
+p15
+
+# Generated executables
+*.exe
+
+# Build output
 build/
+
+# Object files
+*.o
+*.obj
+
+# Temporary/debug files
+*.out
+*.log
