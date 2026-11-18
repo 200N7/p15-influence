@@ -15,3 +15,16 @@ build/
 # Temporary/debug files
 *.out
 *.log
+
+# Local generated tools
+benchmark
+generate_stress
+test_sort_search
+test_divide_conquer
+test_greedy
+test_dp
+test_backtracking
+test_branch_bound
+test_flow_matching
+test_number
+test_string_matching
