@@ -255,3 +255,18 @@ A complete verification workflow is:
     ./p15 data/normal.txt
     ./p15 data/shock.txt
     ./p15 data/stress.txt
+
+## Project Documentation
+
+Detailed project evidence and analysis:
+
+- `docs/problem.md` - problem statement and objectives
+- `docs/io_spec.md` - graph input format and validation rules
+- `docs/design.md` - architecture, workflow, pseudocode and correctness reasoning
+- `docs/complexity.md` - complexity analysis, recurrence solutions, algorithm comparisons and complexity classes
+- `docs/testing.md` - testing strategy, expected-vs-actual results and reliability analysis
+- `docs/final_evaluation.md` - scenario evaluation, limitations, reflection and demonstration plan
+- `docs/evidence/test_results.txt` - complete automated test output
+- `docs/evidence/benchmark_results.txt` - empirical benchmark output
+- `docs/evidence/scenario_results.txt` - normal, viral-shock and stress results
+- `docs/evidence/environment.txt` - compiler and evaluation-machine details
