@@ -5,6 +5,7 @@
 #include "influence.h"
 #include "algorithms/greedy.h"
 #include "algorithms/dp.h"
+#include "algorithms/flow_matching.h"
 
 /*
  * Find the internal index of a user by name.
@@ -584,4 +585,234 @@ void plan_dissemination(
 
     free(items);
     free(selected);
+}
+/*
+ * Analyze maximum dissemination capacity between two users.
+ *
+ * The current network stores propagation probability rather
+ * than physical forwarding capacity. For this normalized
+ * analysis, each probability is converted to an integer
+ * capacity on a 0-100 scale:
+ *
+ * capacity = round(probability * 100)
+ *
+ * Ford-Fulkerson computes maximum flow and the final residual
+ * graph is used to identify a corresponding minimum cut.
+ */
+void analyze_audience_capacity(
+    const struct Graph *g,
+    const char *source,
+    const char *target
+) {
+    if (g == NULL ||
+        source == NULL ||
+        target == NULL ||
+        g->n <= 0) {
+
+        printf("invalid capacity-analysis request\n");
+        return;
+    }
+
+    int src = find_user(g, source);
+    int dst = find_user(g, target);
+
+    if (src == -1 || dst == -1) {
+        printf("user not found\n");
+        return;
+    }
+
+    if (src == dst) {
+        printf(
+            "source and target must be different "
+            "for capacity analysis\n"
+        );
+        return;
+    }
+
+    int edge_count = 0;
+
+    for (int u = 0; u < g->n; u++) {
+        for (struct Edge *edge = g->head[u];
+             edge != NULL;
+             edge = edge->next) {
+
+            if (edge->p <= 0.0 ||
+                edge->p > 1.0) {
+
+                printf(
+                    "invalid probability on edge %s -> %s\n",
+                    g->names[u],
+                    g->names[edge->to]
+                );
+                return;
+            }
+
+            edge_count++;
+        }
+    }
+
+    struct FlowEdge *edges = NULL;
+
+    if (edge_count > 0) {
+        edges = malloc(
+            (size_t)edge_count *
+            sizeof(*edges)
+        );
+
+        if (edges == NULL) {
+            printf("memory allocation failed\n");
+            return;
+        }
+    }
+
+    int position = 0;
+
+    for (int u = 0; u < g->n; u++) {
+        for (struct Edge *edge = g->head[u];
+             edge != NULL;
+             edge = edge->next) {
+
+            edges[position].from = u;
+            edges[position].to = edge->to;
+
+            edges[position].capacity =
+                (int)(edge->p * 100.0 + 0.5);
+
+            position++;
+        }
+    }
+
+    size_t cells =
+        (size_t)g->n * (size_t)g->n;
+
+    long long *flow =
+        calloc(cells, sizeof(long long));
+
+    long long *residual =
+        calloc(cells, sizeof(long long));
+
+    int *source_side =
+        calloc((size_t)g->n, sizeof(int));
+
+    if (flow == NULL ||
+        residual == NULL ||
+        source_side == NULL) {
+
+        free(edges);
+        free(flow);
+        free(residual);
+        free(source_side);
+
+        printf("memory allocation failed\n");
+        return;
+    }
+
+    long long augmentations = 0;
+
+    long long max_flow = ford_fulkerson(
+        g->n,
+        edges,
+        edge_count,
+        src,
+        dst,
+        flow,
+        residual,
+        &augmentations
+    );
+
+    if (max_flow < 0) {
+        free(edges);
+        free(flow);
+        free(residual);
+        free(source_side);
+
+        printf("maximum-flow analysis failed\n");
+        return;
+    }
+
+    if (!min_cut_source_side(
+            g->n,
+            src,
+            residual,
+            source_side)) {
+
+        free(edges);
+        free(flow);
+        free(residual);
+        free(source_side);
+
+        printf("minimum-cut analysis failed\n");
+        return;
+    }
+
+    long long min_cut = cut_capacity(
+        g->n,
+        edges,
+        edge_count,
+        source_side
+    );
+
+    printf("\nAUDIENCE CAPACITY AND BOTTLENECK ANALYSIS\n");
+    printf("----------------------------------------\n");
+
+    printf(
+        "Source: %s\nTarget: %s\n",
+        source,
+        target
+    );
+
+    printf(
+        "Maximum dissemination capacity: %lld\n",
+        max_flow
+    );
+
+    printf(
+        "Minimum cut capacity: %lld\n",
+        min_cut
+    );
+
+    printf("Bottleneck relationships:\n");
+
+    int cut_edges = 0;
+
+    for (int i = 0; i < edge_count; i++) {
+        if (source_side[edges[i].from] &&
+            !source_side[edges[i].to]) {
+
+            cut_edges++;
+
+            printf(
+                "%d. %s -> %s  capacity: %d\n",
+                cut_edges,
+                g->names[edges[i].from],
+                g->names[edges[i].to],
+                edges[i].capacity
+            );
+        }
+    }
+
+    if (cut_edges == 0) {
+        printf("None; target is unreachable from source.\n");
+    }
+
+    printf("----------------------------------------\n");
+
+    printf(
+        "Ford-Fulkerson augmentations: %lld\n",
+        augmentations
+    );
+
+    printf(
+        "Verification: max-flow %s min-cut\n",
+        max_flow == min_cut ? "=" : "!="
+    );
+
+    printf(
+        "Model: capacity = round(probability * 100)\n"
+    );
+
+    free(edges);
+    free(flow);
+    free(residual);
+    free(source_side);
 }

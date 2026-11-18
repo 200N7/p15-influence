@@ -21,5 +21,10 @@ void plan_dissemination(
     int budget,
     const int costs[]
 );
+void analyze_audience_capacity(
+    const struct Graph *g,
+    const char *source,
+    const char *target
+);
 
 #endif

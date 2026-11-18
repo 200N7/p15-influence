@@ -54,7 +54,8 @@ int main(int argc, char *argv[]) {
         printf("3. Rank influential users\n");
         printf("4. Detect communities\n");
         printf("5. Plan high-value dissemination\n");
-        printf("6. Exit\n");
+        printf("6. Audience capacity and bottleneck\n");
+        printf("7. Exit\n");
         printf("----------------------------------------\n");
         printf("Enter choice: ");
 
@@ -161,12 +162,32 @@ int main(int argc, char *argv[]) {
     );
 }
 
-        else if (choice == 6) {
-            printf("\nExiting program.\n");
-        }
+    else if (choice == 6) {
+    char source[64];
+    char target[64];
+
+    printf("\nAUDIENCE CAPACITY AND BOTTLENECK\n");
+    printf("----------------------------------------\n");
+
+    printf("Enter source user: ");
+    scanf("%63s", source);
+
+    printf("Enter target user: ");
+    scanf("%63s", target);
+
+    analyze_audience_capacity(
+        &g,
+        source,
+        target
+    );
+}
+else if (choice == 7) {
+    printf("\nExiting program.\n");
+    break;
+}
 
         else {
-            printf("\nInvalid choice. Please select 1-6.\n");
+            printf("\nInvalid choice. Please select 1-7.\n");
         }
 
     } while (choice != 6);
