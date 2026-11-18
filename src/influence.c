@@ -153,3 +153,71 @@ int most_likely_path(
 
     return 0;
 }
+/*
+ * Rank users by total outgoing influence.
+ *
+ * Influence score of a user is the sum of the probabilities
+ * of all outgoing edges from that user.
+ *
+ * Example:
+ * A -> B = 0.90
+ * A -> C = 0.50
+ *
+ * Score(A) = 0.90 + 0.50 = 1.40
+ */
+void rank_influencers(const struct Graph *g) {
+    double score[1000];
+    int order[1000];
+
+    /*
+     * Calculate the influence score of every user.
+     */
+    for (int i = 0; i < g->n; i++) {
+        score[i] = 0.0;
+        order[i] = i;
+
+        struct Edge *edge = g->head[i];
+
+        while (edge != NULL) {
+            score[i] += edge->p;
+            edge = edge->next;
+        }
+    }
+
+    /*
+     * Selection sort users in descending order
+     * according to influence score.
+     *
+     * We implement the sorting ourselves instead
+     * of using a library sorting function.
+     */
+    for (int i = 0; i < g->n - 1; i++) {
+        int best = i;
+
+        for (int j = i + 1; j < g->n; j++) {
+            if (score[order[j]] > score[order[best]]) {
+                best = j;
+            }
+        }
+
+        if (best != i) {
+            int temp = order[i];
+            order[i] = order[best];
+            order[best] = temp;
+        }
+    }
+
+    printf("\nINFLUENCE RANKING\n");
+    printf("----------------------------------------\n");
+    printf("Rank  User                 Score\n");
+    printf("----------------------------------------\n");
+
+    for (int i = 0; i < g->n; i++) {
+        printf("%-5d %-20s %.4f\n",
+               i + 1,
+               g->names[order[i]],
+               score[order[i]]);
+    }
+
+    printf("----------------------------------------\n");
+}

@@ -9,4 +9,6 @@ int most_likely_path(
     const char *target
 );
 
+void rank_influencers(const struct Graph *g);
+
 #endif

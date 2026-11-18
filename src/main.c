@@ -2,6 +2,25 @@
 #include "graph.h"
 #include "influence.h"
 
+static void display_network(const struct Graph *g) {
+    printf("\nNETWORK CONNECTIONS\n");
+    printf("----------------------------------------\n");
+
+    for (int i = 0; i < g->n; i++) {
+        for (struct Edge *e = g->head[i];
+             e != NULL;
+             e = e->next) {
+
+            printf("%s -> %s  probability: %.2f\n",
+                   g->names[i],
+                   g->names[e->to],
+                   e->p);
+        }
+    }
+
+    printf("----------------------------------------\n");
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         printf("usage: p15 <graph file>\n");
@@ -22,52 +41,60 @@ int main(int argc, char *argv[]) {
     printf("========================================\n");
     printf(" SOCIAL NETWORK INFLUENCE ANALYSIS TOOL\n");
     printf("========================================\n");
+    printf("Network loaded successfully.\n");
+    printf("Users: %d\n", g.n);
 
-    printf("\nNetwork loaded successfully.\n");
-    printf("Users: %d\n\n", g.n);
+    int choice;
 
-    printf("Network connections:\n");
-    printf("----------------------------------------\n");
+    do {
+        printf("\nMAIN MENU\n");
+        printf("----------------------------------------\n");
+        printf("1. Display network\n");
+        printf("2. Most likely influence path\n");
+        printf("3. Rank influential users\n");
+        printf("4. Exit\n");
+        printf("----------------------------------------\n");
+        printf("Enter choice: ");
 
-    for (int i = 0; i < g.n; i++) {
-        for (struct Edge *e = g.head[i];
-             e != NULL;
-             e = e->next) {
-
-            printf("%s -> %s  probability: %.2f\n",
-                   g.names[i],
-                   g.names[e->to],
-                   e->p);
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input.\n");
+            return 1;
         }
-    }
 
-    printf("----------------------------------------\n");
+        if (choice == 1) {
+            display_network(&g);
+        }
 
-    char source[32];
-    char target[32];
+        else if (choice == 2) {
+            char source[32];
+            char target[32];
 
-    printf("\nMOST LIKELY INFLUENCE PATH\n");
-    printf("----------------------------------------\n");
+            printf("\nMOST LIKELY INFLUENCE PATH\n");
+            printf("----------------------------------------\n");
 
-    printf("Enter source user: ");
+            printf("Enter source user: ");
+            scanf("%31s", source);
 
-    if (scanf("%31s", source) != 1) {
-        printf("invalid source\n");
-        return 1;
-    }
+            printf("Enter target user: ");
+            scanf("%31s", target);
 
-    printf("Enter target user: ");
+            printf("\n");
+            most_likely_path(&g, source, target);
+        }
 
-    if (scanf("%31s", target) != 1) {
-        printf("invalid target\n");
-        return 1;
-    }
+        else if (choice == 3) {
+            rank_influencers(&g);
+        }
 
-    printf("\n");
+        else if (choice == 4) {
+            printf("\nExiting program.\n");
+        }
 
-    most_likely_path(&g, source, target);
+        else {
+            printf("\nInvalid choice. Please select 1-4.\n");
+        }
 
-    printf("\n");
+    } while (choice != 4);
 
     return 0;
 }
