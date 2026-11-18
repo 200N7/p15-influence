@@ -66,3 +66,48 @@ int graph_add_edge(struct Graph *g, const char *a, const char *b, double p) {
     // 7. return 0
     return 0;
 }
+int graph_load(struct Graph *g, const char *filename) {
+    // 1. open the file: FILE *f = fopen(filename, "r");
+    //    if f is NULL, return 1
+    FILE *f = fopen(filename, "r");
+    if (f == NULL) {
+        return 1;
+    }
+
+    // 2. declare: char line[256];
+    char line[256];
+
+    // 3. loop: while (fgets(line, sizeof(line), f) != NULL) {
+    //      a. if line[0] is '#', continue
+    //      b. declare char a[32], b[32], extra[32]; double p;
+    //      c. int got = sscanf(line, "%31s %31s %lf %31s", a, b, &p, extra);
+    //      d. if got is EOF (a blank line), continue
+    //      e. if got is not 3, fclose(f) and return 2
+    //      f. int r = graph_add_edge(g, a, b, p);
+    //         if r is not 0, fclose(f) and return 3
+    //    }
+    while (fgets(line, sizeof(line), f) != NULL) {
+        if (line[0] == '#') {
+            continue;
+        }
+        char a[32], b[32], extra[32];
+        double p;
+        int got = sscanf(line, "%31s %31s %lf %31s", a, b, &p, extra);
+        if (got == EOF) {
+            continue;
+        }
+        if (got != 3) {
+            fclose(f);
+            return 2;
+        }
+        int r = graph_add_edge(g, a, b, p);
+        if (r != 0) {
+            fclose(f);
+            return 3;
+        }
+    }
+
+    // 4. fclose(f); return 0
+    fclose(f);
+    return 0;
+}
