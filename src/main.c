@@ -16,7 +16,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // 4 and 5 come next
+    printf("users: %d\n", g.n);
+    for (int i = 0; i < g.n; i++) {
+        for (struct Edge *e = g.head[i]; e != NULL; e = e->next) {
+            printf("%s -> %s  %.2f\n", g.names[i], g.names[e->to], e->p);
+        }
+    }
 
     return 0;
 }
