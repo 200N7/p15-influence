@@ -1,40 +1,76 @@
-\# Input format
+\# Input Format
 
 
 
-Graph file: one line per follow, in the form
+The application reads a social-network graph from a text file.
 
 
 
-&#x20;   user\_a user\_b p
+Each non-comment line has three fields:
 
 
 
-\- user\_a follows user\_b
-
-\- p is the chance a post passes along that follow, a number above 0 and up to 1
-
-\- user names are single words with no spaces
-
-\- lines starting with # are comments and are skipped
+&#x20;   source\_user target\_user probability
 
 
 
-Example: data/tiny.txt
+Example:
 
 
 
-\# Invalid input (the loader must reject these)
+&#x20;   Alice Bob 0.82
+
+&#x20;   Bob Carol 0.76
 
 
 
-\- p less than or equal to 0, or greater than 1
+This means there is a directed influence relationship from the first user to the second user.
 
-\- a user following themselves (user\_a equal to user\_b)
 
-\- a line with fewer or more than 3 fields
 
-\- p that is not a number
+\## Rules
 
-\- an empty file or a file that does not exist
+
+
+\- Usernames are single words without spaces.
+
+\- Probability must satisfy `0 < p <= 1`.
+
+\- A user cannot have a relationship to itself.
+
+\- Lines beginning with `#` are comments and are ignored.
+
+\- Each relationship line must contain exactly three fields.
+
+\- Probability must be numeric.
+
+\- Empty or nonexistent input files are rejected.
+
+
+
+\## Available Datasets
+
+
+
+&#x20;   data/tiny.txt
+
+&#x20;   data/communities.txt
+
+&#x20;   data/normal.txt
+
+&#x20;   data/shock.txt
+
+&#x20;   data/stress.txt
+
+
+
+`normal.txt` represents ordinary network behaviour.
+
+
+
+`shock.txt` uses the same population with stronger cross-community relationships to model a viral event.
+
+
+
+`stress.txt` is a deterministic 500-user, 2000-edge network used for scalability testing.
 
