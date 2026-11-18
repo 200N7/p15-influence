@@ -281,7 +281,7 @@ else if (choice == 10) {
             printf("\nInvalid choice. Please select 1-10.\n");
         }
 
-    } while (choice != 6);
+    } while (choice != 10);
 
     return 0;
 }
