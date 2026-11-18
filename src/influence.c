@@ -613,6 +613,7 @@ void analyze_audience_capacity(
         return;
     }
 
+
     int src = find_user(g, source);
     int dst = find_user(g, target);
 
@@ -815,4 +816,223 @@ void analyze_audience_capacity(
     free(flow);
     free(residual);
     free(source_side);
+}
+
+/*
+ * Assign network users to campaigns using exact maximum
+ * bipartite matching.
+ *
+ * Compatibility is entered explicitly because the follower
+ * graph does not contain campaign eligibility information.
+ *
+ * The exact augmenting-path solution is compared with a
+ * greedy edge-order baseline to expose solution quality.
+ */
+void plan_campaign_assignments(
+    const struct Graph *g,
+    int campaign_count
+) {
+    if (g == NULL ||
+        g->n <= 0 ||
+        campaign_count <= 0 ||
+        campaign_count > 100) {
+
+        printf("invalid campaign-assignment request\n");
+        return;
+    }
+
+    int max_edges = g->n * campaign_count;
+
+    struct BipartiteEdge *edges = malloc(
+        (size_t)max_edges * sizeof(*edges)
+    );
+
+    int *exact_left = malloc(
+        (size_t)g->n * sizeof(int)
+    );
+
+    int *exact_right = malloc(
+        (size_t)campaign_count * sizeof(int)
+    );
+
+    int *greedy_left = malloc(
+        (size_t)g->n * sizeof(int)
+    );
+
+    int *greedy_right = malloc(
+        (size_t)campaign_count * sizeof(int)
+    );
+
+    if (edges == NULL ||
+        exact_left == NULL ||
+        exact_right == NULL ||
+        greedy_left == NULL ||
+        greedy_right == NULL) {
+
+        free(edges);
+        free(exact_left);
+        free(exact_right);
+        free(greedy_left);
+        free(greedy_right);
+
+        printf("memory allocation failed\n");
+        return;
+    }
+
+    int edge_count = 0;
+
+    printf("\nCAMPAIGN COMPATIBILITY INPUT\n");
+    printf("----------------------------------------\n");
+    printf(
+        "Enter 1 if a user is eligible for a campaign, "
+        "otherwise 0.\n"
+    );
+
+    for (int user = 0; user < g->n; user++) {
+        for (int campaign = 0;
+             campaign < campaign_count;
+             campaign++) {
+
+            int compatible;
+
+            printf(
+                "%s -> Campaign %d: ",
+                g->names[user],
+                campaign + 1
+            );
+
+            if (scanf("%d", &compatible) != 1) {
+                free(edges);
+                free(exact_left);
+                free(exact_right);
+                free(greedy_left);
+                free(greedy_right);
+
+                printf("invalid compatibility input\n");
+                return;
+            }
+
+            if (compatible != 0 &&
+                compatible != 1) {
+
+                free(edges);
+                free(exact_left);
+                free(exact_right);
+                free(greedy_left);
+                free(greedy_right);
+
+                printf("compatibility must be 0 or 1\n");
+                return;
+            }
+
+            if (compatible) {
+                edges[edge_count].left = user;
+                edges[edge_count].right = campaign;
+                edge_count++;
+            }
+        }
+    }
+
+    long long exact_operations = 0;
+    long long greedy_operations = 0;
+
+    int exact_size =
+        bipartite_maximum_matching(
+            g->n,
+            campaign_count,
+            edges,
+            edge_count,
+            exact_left,
+            exact_right,
+            &exact_operations
+        );
+
+    int greedy_size =
+        bipartite_greedy_matching(
+            g->n,
+            campaign_count,
+            edges,
+            edge_count,
+            greedy_left,
+            greedy_right,
+            &greedy_operations
+        );
+
+    if (exact_size < 0 || greedy_size < 0) {
+        free(edges);
+        free(exact_left);
+        free(exact_right);
+        free(greedy_left);
+        free(greedy_right);
+
+        printf("campaign matching failed\n");
+        return;
+    }
+
+    printf("\nCAMPAIGN ASSIGNMENT PLAN\n");
+    printf("----------------------------------------\n");
+    printf("Optimal assignments:\n");
+
+    if (exact_size == 0) {
+        printf("None.\n");
+    } else {
+        int number = 0;
+
+        for (int user = 0; user < g->n; user++) {
+            if (exact_left[user] != -1) {
+                number++;
+
+                printf(
+                    "%d. %-20s -> Campaign %d\n",
+                    number,
+                    g->names[user],
+                    exact_left[user] + 1
+                );
+            }
+        }
+    }
+
+    printf("----------------------------------------\n");
+
+    printf(
+        "Maximum matching size: %d\n",
+        exact_size
+    );
+
+    printf(
+        "Greedy matching size: %d\n",
+        greedy_size
+    );
+
+    double quality =
+        exact_size == 0
+            ? 1.0
+            : (double)greedy_size /
+              (double)exact_size;
+
+    printf(
+        "Greedy solution quality: %.2f%% of optimum\n",
+        quality * 100.0
+    );
+
+    printf(
+        "Exact matching operations: %lld\n",
+        exact_operations
+    );
+
+    printf(
+        "Greedy matching operations: %lld\n",
+        greedy_operations
+    );
+
+    printf(
+        "Model: users and campaigns form "
+        "a bipartite eligibility graph\n"
+    );
+
+    free(edges);
+    free(exact_left);
+    free(exact_right);
+    free(greedy_left);
+    free(greedy_right);
 }

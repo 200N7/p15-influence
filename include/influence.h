@@ -26,5 +26,9 @@ void analyze_audience_capacity(
     const char *source,
     const char *target
 );
+void plan_campaign_assignments(
+    const struct Graph *g,
+    int campaign_count
+);
 
 #endif

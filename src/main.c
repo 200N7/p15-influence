@@ -55,7 +55,8 @@ int main(int argc, char *argv[]) {
         printf("4. Detect communities\n");
         printf("5. Plan high-value dissemination\n");
         printf("6. Audience capacity and bottleneck\n");
-        printf("7. Exit\n");
+        printf("7. Campaign assignment\n");
+        printf("8. Exit\n");
         printf("----------------------------------------\n");
         printf("Enter choice: ");
 
@@ -182,12 +183,37 @@ int main(int argc, char *argv[]) {
     );
 }
 else if (choice == 7) {
+    int campaign_count;
+
+    printf("\nCAMPAIGN ASSIGNMENT\n");
+    printf("----------------------------------------\n");
+    printf("Enter number of campaigns: ");
+
+    if (scanf("%d", &campaign_count) != 1) {
+        printf("Invalid input.\n");
+        return 1;
+    }
+
+    if (campaign_count <= 0 ||
+        campaign_count > 100) {
+
+        printf(
+            "Number of campaigns must be between 1 and 100.\n"
+        );
+        continue;
+    }
+
+    plan_campaign_assignments(
+        &g,
+        campaign_count
+    );
+}
+else if (choice == 8) {
     printf("\nExiting program.\n");
     break;
 }
-
         else {
-            printf("\nInvalid choice. Please select 1-7.\n");
+            printf("\nInvalid choice. Please select 1-8.\n");
         }
 
     } while (choice != 6);
