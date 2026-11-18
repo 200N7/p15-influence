@@ -1,0 +1,26 @@
+# P15 normal operating scenario
+# Three social groups with ordinary cross-community influence.
+
+Alice Bob 0.82
+Bob Carol 0.76
+Carol Alice 0.68
+Alice Carol 0.55
+Bob Alice 0.61
+
+David Emma 0.86
+Emma Frank 0.79
+Frank David 0.71
+David Frank 0.58
+Emma David 0.63
+
+Grace Henry 0.91
+Henry Iris 0.83
+Iris Grace 0.74
+Grace Iris 0.60
+Henry Grace 0.69
+
+Carol David 0.24
+Frank Grace 0.20
+Iris Alice 0.18
+Bob Emma 0.16
+David Henry 0.14

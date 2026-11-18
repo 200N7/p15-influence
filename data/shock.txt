@@ -1,0 +1,33 @@
+# P15 shock / viral-event scenario
+# Same base population as normal.txt.
+# A sudden viral event creates strong cross-community links.
+
+Alice Bob 0.82
+Bob Carol 0.76
+Carol Alice 0.68
+Alice Carol 0.55
+Bob Alice 0.61
+
+David Emma 0.86
+Emma Frank 0.79
+Frank David 0.71
+David Frank 0.58
+Emma David 0.63
+
+Grace Henry 0.91
+Henry Iris 0.83
+Iris Grace 0.74
+Grace Iris 0.60
+Henry Grace 0.69
+
+Carol David 0.88
+Frank Grace 0.92
+Iris Alice 0.85
+Bob Emma 0.81
+David Henry 0.87
+
+Alice Emma 0.90
+Emma Grace 0.93
+Grace Bob 0.89
+Carol Iris 0.86
+Henry David 0.84
