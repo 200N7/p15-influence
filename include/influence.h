@@ -30,5 +30,9 @@ void plan_campaign_assignments(
     const struct Graph *g,
     int campaign_count
 );
+void analyze_post_pattern(
+    const char *text,
+    const char *pattern
+);
 
 #endif

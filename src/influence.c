@@ -6,6 +6,7 @@
 #include "algorithms/greedy.h"
 #include "algorithms/dp.h"
 #include "algorithms/flow_matching.h"
+#include "algorithms/string_matching.h"
 
 /*
  * Find the internal index of a user by name.
@@ -1035,4 +1036,183 @@ void plan_campaign_assignments(
     free(exact_right);
     free(greedy_left);
     free(greedy_right);
+}
+
+/*
+ * Search a post/message for a phrase or hashtag using
+ * four exact string-matching algorithms.
+ *
+ * The algorithms must agree on both the number of matches
+ * and every starting position. This gives an integrated
+ * correctness cross-check while also exposing operation
+ * counts for algorithm comparison.
+ */
+void analyze_post_pattern(
+    const char *text,
+    const char *pattern
+) {
+    if (text == NULL ||
+        pattern == NULL ||
+        text[0] == '\0' ||
+        pattern[0] == '\0') {
+
+        printf("text and pattern must be non-empty\n");
+        return;
+    }
+
+    size_t text_length = strlen(text);
+
+    int *naive_positions = malloc(
+        (text_length + 1U) * sizeof(int)
+    );
+
+    int *rk_positions = malloc(
+        (text_length + 1U) * sizeof(int)
+    );
+
+    int *fa_positions = malloc(
+        (text_length + 1U) * sizeof(int)
+    );
+
+    int *kmp_positions = malloc(
+        (text_length + 1U) * sizeof(int)
+    );
+
+    if (naive_positions == NULL ||
+        rk_positions == NULL ||
+        fa_positions == NULL ||
+        kmp_positions == NULL) {
+
+        free(naive_positions);
+        free(rk_positions);
+        free(fa_positions);
+        free(kmp_positions);
+
+        printf("memory allocation failed\n");
+        return;
+    }
+
+    long long naive_operations = 0;
+    long long rk_operations = 0;
+    long long fa_operations = 0;
+    long long kmp_operations = 0;
+
+    int naive_count = naive_string_match(
+        text,
+        pattern,
+        naive_positions,
+        &naive_operations
+    );
+
+    int rk_count = rabin_karp_match(
+        text,
+        pattern,
+        rk_positions,
+        &rk_operations
+    );
+
+    int fa_count = finite_automaton_match(
+        text,
+        pattern,
+        fa_positions,
+        &fa_operations
+    );
+
+    int kmp_count = kmp_string_match(
+        text,
+        pattern,
+        kmp_positions,
+        &kmp_operations
+    );
+
+    if (naive_count < 0 ||
+        rk_count < 0 ||
+        fa_count < 0 ||
+        kmp_count < 0) {
+
+        free(naive_positions);
+        free(rk_positions);
+        free(fa_positions);
+        free(kmp_positions);
+
+        printf("string-matching analysis failed\n");
+        return;
+    }
+
+    int agree =
+        naive_count == rk_count &&
+        naive_count == fa_count &&
+        naive_count == kmp_count;
+
+    if (agree) {
+        for (int i = 0; i < naive_count; i++) {
+            if (naive_positions[i] != rk_positions[i] ||
+                naive_positions[i] != fa_positions[i] ||
+                naive_positions[i] != kmp_positions[i]) {
+
+                agree = 0;
+                break;
+            }
+        }
+    }
+
+    printf("\nPOST / HASHTAG PATTERN ANALYSIS\n");
+    printf("----------------------------------------\n");
+
+    printf("Pattern: \"%s\"\n", pattern);
+    printf("Matches found: %d\n", naive_count);
+
+    printf("Match positions: ");
+
+    if (naive_count == 0) {
+        printf("none");
+    } else {
+        for (int i = 0; i < naive_count; i++) {
+            if (i > 0) {
+                printf(", ");
+            }
+
+            printf("%d", naive_positions[i]);
+        }
+    }
+
+    printf("\n");
+    printf("----------------------------------------\n");
+
+    printf(
+        "Naive operations:            %lld\n",
+        naive_operations
+    );
+
+    printf(
+        "Rabin-Karp operations:       %lld\n",
+        rk_operations
+    );
+
+    printf(
+        "Finite-automaton operations: %lld\n",
+        fa_operations
+    );
+
+    printf(
+        "KMP operations:              %lld\n",
+        kmp_operations
+    );
+
+    printf(
+        "Cross-check: all four algorithms %s\n",
+        agree
+            ? "agree"
+            : "DO NOT AGREE"
+    );
+
+    printf(
+        "Rabin-Karp note: every hash hit is "
+        "verified before reporting a match\n"
+    );
+
+    free(naive_positions);
+    free(rk_positions);
+    free(fa_positions);
+    free(kmp_positions);
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "graph.h"
 #include "influence.h"
 
@@ -56,7 +57,8 @@ int main(int argc, char *argv[]) {
         printf("5. Plan high-value dissemination\n");
         printf("6. Audience capacity and bottleneck\n");
         printf("7. Campaign assignment\n");
-        printf("8. Exit\n");
+        printf("8. Search post / hashtag\n");
+        printf("9. Exit\n");
         printf("----------------------------------------\n");
         printf("Enter choice: ");
 
@@ -209,11 +211,48 @@ else if (choice == 7) {
     );
 }
 else if (choice == 8) {
+    char text[1000];
+    char pattern[256];
+
+    printf("\nPOST / HASHTAG SEARCH\n");
+    printf("----------------------------------------\n");
+
+    /*
+     * Remove the newline left behind by scanf.
+     */
+    int ch;
+    while ((ch = getchar()) != '\n' &&
+           ch != EOF) {
+    }
+
+    printf("Enter post/message: ");
+
+    if (fgets(text, sizeof(text), stdin) == NULL) {
+        printf("Invalid text input.\n");
+        return 1;
+    }
+
+    text[strcspn(text, "\n")] = '\0';
+
+    printf("Enter phrase or hashtag to search: ");
+
+    if (fgets(pattern, sizeof(pattern), stdin) == NULL) {
+        printf("Invalid pattern input.\n");
+        return 1;
+    }
+
+    pattern[strcspn(pattern, "\n")] = '\0';
+
+    analyze_post_pattern(
+        text,
+        pattern
+    );
+}
+else if (choice == 9) {
     printf("\nExiting program.\n");
     break;
-}
-        else {
-            printf("\nInvalid choice. Please select 1-8.\n");
+}        else {
+            printf("\nInvalid choice. Please select 1-9.\n");
         }
 
     } while (choice != 6);
