@@ -34,5 +34,8 @@ void analyze_post_pattern(
     const char *text,
     const char *pattern
 );
+void analyze_text_compression(
+    const char *text
+);
 
 #endif

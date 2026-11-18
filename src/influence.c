@@ -1216,3 +1216,139 @@ void analyze_post_pattern(
     free(fa_positions);
     free(kmp_positions);
 }
+/*
+ * Analyze Huffman compression for a post/message.
+ *
+ * Character frequencies are measured directly from the
+ * supplied text. Huffman codes are then generated and
+ * compared with the original fixed 8-bit representation.
+ */
+void analyze_text_compression(
+    const char *text
+) {
+    if (text == NULL || text[0] == '\0') {
+        printf("text must be non-empty\n");
+        return;
+    }
+
+    unsigned long frequencies[256] = {0};
+
+    for (const unsigned char *p =
+             (const unsigned char *)text;
+         *p != '\0';
+         p++) {
+
+        frequencies[*p]++;
+    }
+
+    struct HuffmanCode codes[256];
+    long long operations = 0;
+
+    int code_count = huffman_build_codes(
+        frequencies,
+        codes,
+        &operations
+    );
+
+    if (code_count < 0) {
+        printf("Huffman compression analysis failed\n");
+        return;
+    }
+
+    if (!huffman_is_prefix_free(
+            codes,
+            code_count)) {
+
+        printf("generated Huffman codes are invalid\n");
+        return;
+    }
+
+    unsigned long long original_bits = 0;
+    unsigned long long compressed_bits = 0;
+
+    size_t text_length = strlen(text);
+
+    original_bits =
+        (unsigned long long)text_length * 8ULL;
+
+    for (int i = 0; i < code_count; i++) {
+        unsigned char symbol = codes[i].symbol;
+
+        compressed_bits +=
+            (unsigned long long)frequencies[symbol] *
+            (unsigned long long)strlen(codes[i].code);
+    }
+
+    printf("\nHUFFMAN TEXT COMPRESSION ANALYSIS\n");
+    printf("----------------------------------------\n");
+    printf("Input characters: %zu\n", text_length);
+    printf("Distinct symbols: %d\n", code_count);
+    printf("Original size: %llu bits\n", original_bits);
+    printf(
+        "Huffman encoded size: %llu bits\n",
+        compressed_bits
+    );
+
+    if (original_bits > 0) {
+        double reduction =
+            100.0 *
+            (1.0 -
+             (double)compressed_bits /
+             (double)original_bits);
+
+        printf(
+            "Bit reduction: %.2f%%\n",
+            reduction
+        );
+    }
+
+    printf("----------------------------------------\n");
+    printf("Generated codes:\n");
+
+    for (int i = 0; i < code_count; i++) {
+        unsigned char symbol = codes[i].symbol;
+
+        if (symbol == ' ') {
+            printf(
+                "[space]  freq=%lu  code=%s\n",
+                frequencies[symbol],
+                codes[i].code
+            );
+        } else if (symbol == '\n') {
+            printf(
+                "[newline] freq=%lu  code=%s\n",
+                frequencies[symbol],
+                codes[i].code
+            );
+        } else if (symbol >= 32 &&
+                   symbol <= 126) {
+
+            printf(
+                "'%c'      freq=%lu  code=%s\n",
+                symbol,
+                frequencies[symbol],
+                codes[i].code
+            );
+        } else {
+            printf(
+                "0x%02X     freq=%lu  code=%s\n",
+                symbol,
+                frequencies[symbol],
+                codes[i].code
+            );
+        }
+    }
+
+    printf("----------------------------------------\n");
+    printf(
+        "Prefix-free verification: PASS\n"
+    );
+    printf(
+        "Huffman operations: %lld\n",
+        operations
+    );
+    printf(
+        "Model: variable-length prefix coding "
+        "from observed character frequencies\n"
+    );
+}

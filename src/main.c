@@ -58,7 +58,8 @@ int main(int argc, char *argv[]) {
         printf("6. Audience capacity and bottleneck\n");
         printf("7. Campaign assignment\n");
         printf("8. Search post / hashtag\n");
-        printf("9. Exit\n");
+        printf("9. Huffman text compression\n");
+        printf("10. Exit\n");
         printf("----------------------------------------\n");
         printf("Enter choice: ");
 
@@ -249,10 +250,35 @@ else if (choice == 8) {
     );
 }
 else if (choice == 9) {
+    char text[1000];
+
+    printf("\nHUFFMAN TEXT COMPRESSION\n");
+    printf("----------------------------------------\n");
+
+    /*
+     * Remove the newline left behind by scanf.
+     */
+    int ch;
+    while ((ch = getchar()) != '\n' &&
+           ch != EOF) {
+    }
+
+    printf("Enter post/message to compress: ");
+
+    if (fgets(text, sizeof(text), stdin) == NULL) {
+        printf("Invalid text input.\n");
+        return 1;
+    }
+
+    text[strcspn(text, "\n")] = '\0';
+
+    analyze_text_compression(text);
+}
+else if (choice == 10) {
     printf("\nExiting program.\n");
     break;
-}        else {
-            printf("\nInvalid choice. Please select 1-9.\n");
+}       else {
+            printf("\nInvalid choice. Please select 1-10.\n");
         }
 
     } while (choice != 6);
